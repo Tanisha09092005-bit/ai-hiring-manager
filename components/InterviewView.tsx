@@ -1,15 +1,17 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ResumeAnalysis, ChatMessage } from '../types';
-import { Send, User, Bot, AlertTriangle, CheckCircle, Target, TrendingUp, XCircle, MoreHorizontal } from 'lucide-react';
+import { ResumeAnalysis, ChatMessage, JobContext } from '../types';
+import { Send, User, Bot, AlertTriangle, CheckCircle, Target, TrendingUp, XCircle, MoreHorizontal, Linkedin, LogOut } from 'lucide-react';
 import { geminiService } from '../services/geminiService';
 import ReactMarkdown from 'react-markdown';
 
 interface InterviewViewProps {
   analysis: ResumeAnalysis;
   initialMessage: string;
+  context: JobContext;
+  onEnd: () => void;
 }
 
-const InterviewView: React.FC<InterviewViewProps> = ({ analysis, initialMessage }) => {
+const InterviewView: React.FC<InterviewViewProps> = ({ analysis, initialMessage, context, onEnd }) => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
@@ -56,10 +58,13 @@ const InterviewView: React.FC<InterviewViewProps> = ({ analysis, initialMessage 
     }
   };
 
-  const getScoreColor = (score: number) => {
-    if (score >= 80) return 'text-brand-success';
-    if (score >= 50) return 'text-brand-warning';
-    return 'text-brand-danger';
+  const handleShare = () => {
+    // Automatically use the current URL where the app is hosted
+    const appUrl = window.location.origin + window.location.pathname;
+    
+    const text = `I just challenged the AI Hiring Manager Simulator! 🤖💼\n\nTarget Role: ${context.role}\nTarget Company: ${context.company}\n\nMy Score: ${analysis.score}/100\nVerdict: ${analysis.passProbability} Probability of Passing\n\nCan you beat my score? Try it here: ${appUrl}\n\n#AI #TechInterview #CareerGrowth #GeminiAPI`;
+    const url = `https://www.linkedin.com/feed/?shareActive=true&text=${encodeURIComponent(text)}`;
+    window.open(url, '_blank');
   };
 
   return (
@@ -87,6 +92,14 @@ const InterviewView: React.FC<InterviewViewProps> = ({ analysis, initialMessage 
           <div className="bg-brand-dark rounded-lg p-4 border border-gray-800 mb-6">
             <p className="text-sm text-gray-300 italic">"{analysis.summary}"</p>
           </div>
+
+          <button
+            onClick={handleShare}
+            className="w-full py-3 bg-[#0077b5] hover:bg-[#006396] text-white rounded-lg font-bold flex items-center justify-center gap-2 transition-colors shadow-lg"
+          >
+            <Linkedin className="w-5 h-5" />
+            Share Result on LinkedIn
+          </button>
         </div>
 
         <div className="p-6 space-y-8">
@@ -144,7 +157,11 @@ const InterviewView: React.FC<InterviewViewProps> = ({ analysis, initialMessage 
             <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></div>
             <span className="font-mono text-sm text-gray-300">LIVE INTERVIEW SESSION</span>
           </div>
-          <button className="text-xs text-red-500 hover:text-red-400 border border-red-500/30 px-3 py-1 rounded hover:bg-red-500/10 transition-colors">
+          <button 
+            onClick={onEnd}
+            className="flex items-center gap-2 text-xs text-red-500 hover:text-red-400 border border-red-500/30 px-3 py-1.5 rounded hover:bg-red-500/10 transition-colors"
+          >
+            <LogOut className="w-3 h-3" />
             End Interview
           </button>
         </div>

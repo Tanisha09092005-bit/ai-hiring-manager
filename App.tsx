@@ -8,10 +8,12 @@ const App: React.FC = () => {
   const [view, setView] = useState<'upload' | 'interview'>('upload');
   const [analysis, setAnalysis] = useState<ResumeAnalysis | null>(null);
   const [initialMessage, setInitialMessage] = useState<string>('');
+  const [jobContext, setJobContext] = useState<JobContext | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleStart = async (context: JobContext) => {
     setIsLoading(true);
+    setJobContext(context);
     try {
       // 1. Analyze Resume
       const result = await geminiService.analyzeResume(context);
@@ -33,13 +35,24 @@ const App: React.FC = () => {
     }
   };
 
+  const handleReset = () => {
+    setAnalysis(null);
+    setJobContext(null);
+    setView('upload');
+  };
+
   return (
     <div className="min-h-screen bg-brand-dark text-white font-sans">
       {view === 'upload' && (
         <UploadView onStart={handleStart} isLoading={isLoading} />
       )}
-      {view === 'interview' && analysis && (
-        <InterviewView analysis={analysis} initialMessage={initialMessage} />
+      {view === 'interview' && analysis && jobContext && (
+        <InterviewView 
+          analysis={analysis} 
+          initialMessage={initialMessage} 
+          context={jobContext}
+          onEnd={handleReset}
+        />
       )}
     </div>
   );
