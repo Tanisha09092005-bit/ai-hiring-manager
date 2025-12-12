@@ -59,8 +59,8 @@ const InterviewView: React.FC<InterviewViewProps> = ({ analysis, initialMessage,
   };
 
   const handleShare = () => {
-    // Automatically use the current URL where the app is hosted
-    const appUrl = window.location.origin + window.location.pathname;
+    // Use the specific Vercel URL for sharing
+    const appUrl = "https://ai-hiring-manager.vercel.app/";
     
     const text = `I just challenged the AI Hiring Manager Simulator! 🤖💼\n\nTarget Role: ${context.role}\nTarget Company: ${context.company}\n\nMy Score: ${analysis.score}/100\nVerdict: ${analysis.passProbability} Probability of Passing\n\nCan you beat my score? Try it here: ${appUrl}\n\n#AI #TechInterview #CareerGrowth #GeminiAPI`;
     const url = `https://www.linkedin.com/feed/?shareActive=true&text=${encodeURIComponent(text)}`;
